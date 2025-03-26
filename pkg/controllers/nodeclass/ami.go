@@ -29,6 +29,7 @@ import (
 	"sigs.k8s.io/karpenter/pkg/utils/pretty"
 
 	v1 "github.com/aws/karpenter-provider-aws/pkg/apis/v1"
+	awserrors "github.com/aws/karpenter-provider-aws/pkg/errors"
 	"github.com/aws/karpenter-provider-aws/pkg/providers/amifamily"
 )
 
