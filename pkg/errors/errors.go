@@ -239,7 +239,7 @@ func DescribeImageError(ami string, err error) error {
 	if err == nil {
 		return fmt.Errorf(`failed to discover any AMIs for alias "%s"`, ami)
 	}
-	return err
+	return fmt.Errorf(`failed to discover any AMIs for alias "%s": one of the errors was: %w`, ami, err)
 }
 
 // ClassifyError determines whether the given error should be retried.
