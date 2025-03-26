@@ -47,6 +47,10 @@ func NewAMIReconciler(provider amifamily.Provider) *AMI {
 func (a *AMI) Reconcile(ctx context.Context, nodeClass *v1.EC2NodeClass) (reconcile.Result, error) {
 	amis, err := a.amiProvider.List(ctx, nodeClass)
 	if err != nil {
+		reason, message, retryable := awserrors.ClassifyError(err)
+		if !retryable {
+			nodeClass.StatusConditions().SetFalse(v1.ConditionTypeAMIsReady, reason, message)
+		}
 		return reconcile.Result{}, fmt.Errorf("getting amis, %w", err)
 	}
 	if len(amis) == 0 {

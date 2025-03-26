@@ -15,6 +15,7 @@ limitations under the License.
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -30,6 +31,9 @@ const (
 	DryRunOperationErrorCode              = "DryRunOperation"
 	UnauthorizedOperationErrorCode        = "UnauthorizedOperation"
 	RateLimitingErrorCode                 = "RequestLimitExceeded"
+	AccessDeniedErrorCode                 = "AccessDenied"
+	AccessDeniedExceptionErrorCode        = "AccessDeniedException"
+	LimitExceededErrorCode                = "LimitExceeded"
 )
 
 var (
@@ -232,8 +236,26 @@ func ToReasonMessage(err error) (string, string) {
 }
 
 func DescribeImageError(ami string, err error) error {
-	if err == nil {
-		return fmt.Errorf(`failed to discover any AMIs for alias "%s"`, ami)
+	// if err == nil {
+	fmt.Printf("DescribeImageError: %v", err)
+	return fmt.Errorf(`failed to discover any AMIs for alias "%s"`, ami)
+	// }
+	// return err
+}
+
+// ClassifyError determines whether the given error should be retried.
+// Specifically identifies 'Unauthorized' and 'LimitExceeded' as non-retryable.
+func ClassifyError(err error) (reason string, message string, retryable bool) {
+	var apiErr smithy.APIError
+	if errors.As(err, &apiErr) {
+		switch apiErr.ErrorCode() {
+		case UnauthorizedOperationErrorCode, AccessDeniedErrorCode, AccessDeniedExceptionErrorCode:
+			return "Unauthorized", apiErr.ErrorMessage(), false
+		case LimitExceededErrorCode:
+			return "LimitExceeded", apiErr.ErrorMessage(), false
+		default:
+			return "", "", true
+		}
 	}
-	return err
+	return "", "", true
 }
