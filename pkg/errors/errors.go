@@ -236,10 +236,10 @@ func ToReasonMessage(err error) (string, string) {
 }
 
 func DescribeImageError(ami string, err error) error {
-	if err == nil {
-		return fmt.Errorf(`failed to discover any AMIs for alias "%s"`, ami)
-	}
-	return err
+	// if err == nil {
+	return fmt.Errorf(`failed to discover any AMIs for alias "%s"`, ami)
+	// }
+	// return err
 }
 
 // ClassifyError determines whether the given error should be retried.
